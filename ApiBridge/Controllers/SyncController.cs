@@ -23,6 +23,18 @@ namespace ApiBridge.Controllers
            serviceUsers.SendUser(userDto);
             return Ok(new { sucess = true, message = "Usuário sincronizado com sucesso!" });
         }
+        [HttpPut("users")]
+        public IActionResult AtualizarUsuario([FromBody] SyncUserDto userDto)
+        {
+            ServiceUsers service = new();
+            if (userDto is null || String.IsNullOrEmpty(userDto.Name))
+                return BadRequest(new { mensagem = "Dados invalidos" });
+            else
+            {
+                service.UpdateUser(userDto);
+            }
+            return Ok(new { sucess = true, message = "Usuario atualizado com sucesso!" });
+        }
     }
 }
 
