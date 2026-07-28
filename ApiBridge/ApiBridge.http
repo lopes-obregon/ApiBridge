@@ -1,0 +1,6 @@
+@ApiBridge_HostAddress = http://localhost:5177
+
+GET {{ApiBridge_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
