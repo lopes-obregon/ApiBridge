@@ -2,3 +2,4 @@
 bin/
 obj/
 docker-compose.yml
+ApiBridge/appsettings.json
