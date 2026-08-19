@@ -1,20 +1,45 @@
 ﻿using ApiBridge.Models.Dto;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Net.Http.Headers;
+using String = System.String;
 
 namespace ApiBridge.Services
 {
     public class ServiceUsers
     {
-        internal async Task<bool> DeleteUser(SyncUserDto syncUserDto)
+        private  readonly IConfiguration _configuration;
+
+        public ServiceUsers(IConfiguration configuration)
         {
-            string urlCamioneiro = "https://gestor-mei-caminhoneiro-d1039.shrd00.internal.goskip.dev/backend/v1/subscribers";
+            _configuration = configuration;
+        }
+
+        internal async Task<bool> DeleteUser(String externalId)
+        {
+            
+            string urlCamioneiro = String.Empty;
+            string token = String.Empty;
+            string urlDelete = String.Empty;
             HttpClient client = new();
-            HttpRequestMessage httpRequestMessage = new(HttpMethod.Delete, urlCamioneiro)
+            HttpResponseMessage response;
+            HttpRequestMessage httpRequestMessage;
+           //verificação das configurações
+            if (!String.IsNullOrEmpty(_configuration["ApiKeys:VlsolucoesiaApi"]))
+                token = _configuration["ApiKeys:VlsolucoesiaApi"];
+            if (!String.IsNullOrEmpty(_configuration["ApiUrls:CaminhoneiroApi"]))
+                urlCamioneiro = _configuration["ApiUrls:CaminhoneiroApi"] + "subscribers";
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            try
             {
-                Content = JsonContent.Create(syncUserDto)
-            };
-            HttpResponseMessage response = await client.SendAsync(httpRequestMessage);
-            return response.IsSuccessStatusCode;
+                urlDelete = $"{urlCamioneiro}/{externalId}";
+                response = await client.DeleteAsync(urlDelete);
+                if (response.IsSuccessStatusCode)
+                    return true;
+            }catch(HttpRequestException ex)
+            {
+                return false;
+            }
+            return false;
 
         }
 
@@ -22,13 +47,19 @@ namespace ApiBridge.Services
         {
             throw new NotImplementedException();
         }
-
+        //obtem todo os usuarios do sistema de caminhoneiro
         internal async Task<bool> GetUsers(List<SyncUserDto> syncUserDtos)
         {
-            string urlCamioneiro = "https://gestor-mei-caminhoneiro-d1039.shrd00.internal.goskip.dev/backend/v1/subscribers";
+            string urlCamioneiro = System.String.Empty;
+            string token = System.String.Empty;
             HttpClient client = new();
             List<SyncUserDto>? userDtos = new();
-            
+            if (!String.IsNullOrEmpty(_configuration["ApiUrls:CaminhoneiroApi"]) && !String.IsNullOrEmpty(_configuration["ApiKeys:VlsolucoesiaApi"]))
+            { 
+                urlCamioneiro = _configuration["ApiUrls:CaminhoneiroApi"] + "subscribers";
+                token = _configuration["ApiKeys:VlsolucoesiaApi"];
+            }
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             userDtos = await client.GetFromJsonAsync<List<SyncUserDto>>(urlCamioneiro);
             if (userDtos is not null && userDtos.Any())
             {
@@ -46,9 +77,18 @@ namespace ApiBridge.Services
         // envia o usuario para o sistema de gerenciamento de asinantes de outros sistemas.
         internal async Task SendUser(SyncUserDto userDto)
         {
-            string resultado =  System.String.Empty;
+            string resultado =  String.Empty;
+            string urlVl =  String.Empty;
+            string token =  String.Empty;
             HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.PostAsJsonAsync("https://gestao-de-empresa-de-sistemas-e4fd0.shrd00.internal.goskip.dev/backend/v1/sync-users", userDto);
+            HttpResponseMessage response;
+            if (!String.IsNullOrEmpty(_configuration["ApiUrls:VlApi"]) && !String.IsNullOrEmpty(_configuration["ApiKeys:VlsolucoesiaApi"]))
+               { 
+                urlVl = _configuration["ApiUrls:VlApi"];
+                token = _configuration["ApiKeys:VlsolucoesiaApi"];
+            }
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            response = await client.PostAsJsonAsync(urlVl, userDto);
             //verificação de status
             if (response.IsSuccessStatusCode)
             {
@@ -66,13 +106,23 @@ namespace ApiBridge.Services
         {
             throw new NotImplementedException();
         }
-        //enviar para outro o usuario atualizado
+        //enviar para outro o usuario atualizado; Para o sistema caminhoniro com o dados atualizados
         internal async Task<bool> UpdateUser(SyncUserDto userDto)
         {
             string resultado = System.String.Empty;
+            string urlCaminhoneiro = String.Empty;
+            string token = String.Empty;
             HttpClient client = new HttpClient();
+            HttpResponseMessage response;
+            if (!String.IsNullOrEmpty(_configuration["ApiUrls:CaminhoneiroApi"]) && !String.IsNullOrEmpty(_configuration["ApiKeys:VlsolucoesiaApi"]))
+            {
+                urlCaminhoneiro = _configuration["ApiUrls:CaminhoneiroApi"] + "sync-users";
+                token = _configuration["ApiKeys:VlsolucoesiaApi"];
+            }
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            Console.WriteLine($"url: {urlCaminhoneiro}");   
             //post por que o outro sistema espera um método do tipo post
-            HttpResponseMessage response = await client.PostAsJsonAsync("https://gestor-mei-caminhoneiro-d1039.shrd00.internal.goskip.dev/backend/v1/sync-users", userDto);
+           response = await client.PostAsJsonAsync(urlCaminhoneiro, userDto);
             //verificação de status
             if (response.IsSuccessStatusCode)
             {
@@ -83,7 +133,9 @@ namespace ApiBridge.Services
             }
             else
             {
+                string erroDetalhado = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"Erro ao enviar usuário: {response.StatusCode}");
+                Console.WriteLine($"Detalhes retornados pela API: {erroDetalhado}");
                 return false;
             }
 
