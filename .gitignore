@@ -5,3 +5,4 @@ docker-compose.yml
 ApiBridge/appsettings.json
  ApiBridge/appsettings.json
 
+docker-compose.override.yml

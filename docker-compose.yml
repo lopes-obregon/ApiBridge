@@ -15,6 +15,6 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared_tunnel
     restart: always
-    command: tunnel --no-autoupdate run --token 
+    command: tunnel --no-autoupdate run --token eyJhIjoiNWEzOTNlYWZlNzljY2Y3MjYzZjA3N2M5ZThjODgzNjMiLCJ0IjoiNzA3NDkzYTItYTEyNy00NzkxLThjM2ItNTNhNTdlMGJlYTY0IiwicyI6IlptRmlZalZsTjJFdFpHSTFaQzAwTXpFeExUZ3hNRFV0WkRVd056azVOalkwWTJaayJ9
     depends_on:
       - apibridge
