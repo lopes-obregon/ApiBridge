@@ -364,3 +364,4 @@ FodyWeavers.xsd
 
 docker-compose.yml
 ApiBridge/appsettings.json
+../docker-compose.yml
