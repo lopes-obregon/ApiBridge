@@ -33,7 +33,7 @@ namespace ApiBridge.Services
                 Body = $@"
                 <h2>Olá {user.Name} Seja Bem-vindo!</h2>
                 <p>Para ativar sua conta, utilize o código/link abaixo:</p>
-                <p><b>{user.code}</b></p>
+                <h3><b>{user.code}</b></h3>
                 <br>
                 <p>Se você não solicitou este cadastro, desconsidere este e-mail.</p>",
                 IsBodyHtml = true
