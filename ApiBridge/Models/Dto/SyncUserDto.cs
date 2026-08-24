@@ -15,11 +15,15 @@ namespace ApiBridge.Models.Dto
         [JsonPropertyName("payment_status")]
         public string? Payment_status { get; set; }
         [JsonPropertyName("expires_in_minutes")]
-        public int expires_in_minutes { get; set; }
+        public int ExpiresInMinutes { get; set; }
         [JsonPropertyName("type")]
-        public string type { get; set; }
+        public string Type { get; set; }
         [JsonPropertyName("code")]
-        public string code { get; set; }
+        public string Code { get; set; }
+        [JsonPropertyName("create_date")]
+        public string CreateDate { get; set; }
+
+
         public SyncUserDto()
         {
         }
