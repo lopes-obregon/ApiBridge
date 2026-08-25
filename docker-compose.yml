@@ -1,20 +1,9 @@
-version: '3.4'
-
 services:
-  apibridge:
+  apibridge-dev:
     image: ${DOCKER_REGISTRY-}apibridge
     build:
       context: .
       dockerfile: ApiBridge/Dockerfile
     ports:
       - "8080:8080"
-    environment:
-      - ASPNETCORE_HTTP_PORTS=8080
-
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: cloudflared_tunnel
-    restart: always
-    command: tunnel --no-autoupdate run --token 
-    depends_on:
-      - apibridge
+    

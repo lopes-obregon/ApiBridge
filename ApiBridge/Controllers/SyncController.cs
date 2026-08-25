@@ -17,17 +17,22 @@ namespace ApiBridge.Controllers
         }
         // A rota completa fica: POST http://localhost:8080/backend/v1/users
         [HttpPost("users")] // Define o endpoint para sincronizar o usuário
-        public IActionResult SyncUser([FromBody] SyncUserDto userDto)
+        public async Task<IActionResult> SyncUser([FromBody] SyncUserDto userDto)
         {
             // Aqui você pode implementar a lógica para sincronizar o usuário com base nos dados recebidos
             Console.WriteLine($"[POCKETBASE SYNC] ID: {userDto.External_id} | Nome: {userDto.Name} | Email: {userDto.Email}");
             // Por exemplo, você pode salvar os dados em um banco de dados ou chamar outro serviço
             // Retorna uma resposta de sucesso (200 OK) com uma mensagem
             ServiceUsers serviceUsers = new ServiceUsers(_configuration);
+            bool sucess = false;
             //serviceUsers.Exists(userDto);
             //serviceUsers.SyncUser(userDto);
-           serviceUsers.SendUser(userDto);
-            return Ok(new { sucess = true, message = "Usuário sincronizado com sucesso!" });
+           sucess = await serviceUsers.SendUser(userDto);
+            if (sucess)
+                return Ok(new { sucess = sucess, message = "Usuário sincronizado com sucesso!" });
+            else
+                return BadRequest(new { mensagem = "Algo Deu errado desculpe!" });
+
         }
         [HttpPut("users")]
         public async Task<IActionResult> AtualizarUsuarioAsync([FromBody] SyncUserDto userDto)

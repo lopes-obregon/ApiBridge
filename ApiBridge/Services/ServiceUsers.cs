@@ -75,7 +75,7 @@ namespace ApiBridge.Services
         }
 
         // envia o usuario para o sistema de gerenciamento de asinantes de outros sistemas.
-        internal async Task SendUser(SyncUserDto userDto)
+        internal async Task<bool> SendUser(SyncUserDto userDto)
         {
             string resultado =  String.Empty;
             string urlVl =  String.Empty;
@@ -88,17 +88,27 @@ namespace ApiBridge.Services
                 token = _configuration["ApiKeys:VlsolucoesiaApi"];
             }
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            response = await client.PostAsJsonAsync(urlVl, userDto);
             //verificação de status
-            if (response.IsSuccessStatusCode)
+            try
             {
-                Console.WriteLine("Usuário enviado com sucesso!");
-                resultado = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Resultado: {resultado}");
-            }
-            else
+                response = await client.PostAsJsonAsync(urlVl, userDto);
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Usuário enviado com sucesso!");
+                    resultado = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Resultado: {resultado}");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine($"Erro ao enviar usuário: {response.StatusCode}");
+                    return false;
+                }
+
+            }catch(Exception ex)
             {
-                Console.WriteLine($"Erro ao enviar usuário: {response.StatusCode}");
+                Console.WriteLine("ERROR:" + ex.ToString());
+                return false;
             }
         }
 
