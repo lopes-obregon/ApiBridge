@@ -18,12 +18,13 @@ namespace ApiBridge.Services
             HttpResponseMessage response;
             if (!String.IsNullOrEmpty(_configuration["ApiUrls:CaminhoneiroApi"]) && !String.IsNullOrEmpty(_configuration["ApiKeys:VlsolucoesiaApi"]))
             {
-                urlCaminhoneiro = _configuration["ApiUrls:CaminhoneiroApi"] + "mensagem"
+                urlCaminhoneiro = _configuration["ApiUrls:CaminhoneiroApi"] + "mensagem";
                 token = _configuration["ApiKeys:VlsolucoesiaApi"];
             }
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             try
             {
+                Console.WriteLine($"ext_id:{user.External_id}, status:{user.Status}");
                 response = await client.PostAsJsonAsync(urlCaminhoneiro, user);
                 if (response.IsSuccessStatusCode)
                     return true;

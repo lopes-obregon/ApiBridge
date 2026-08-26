@@ -26,6 +26,8 @@ namespace ApiBridge.Models.Dto
         public int DaysRemaing { get; set; }
         [JsonPropertyName("status")]
         public string? Status { get; set; }
+        [JsonPropertyName("expiry_date")]
+        public string? ExpiryDate { get; set; }
 
 
         public SyncUserDto()
